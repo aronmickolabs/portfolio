@@ -465,6 +465,17 @@
   .feature-visual .accent-orb{ position:absolute; width:220px; height:220px; border-radius:50%; filter:blur(60px); opacity:var(--orb-opacity); }
   .feature-visual.teal .accent-orb{ background:var(--accent); top:-40px; right:-40px; }
   .feature-visual.gold .accent-orb{ background:var(--gold); bottom:-40px; left:-40px; }
+  .feature-visual img{
+    width:100%; height:100%; object-fit:cover; display:block; position:relative; z-index:1;
+    transition:transform .6s cubic-bezier(.2,.8,.2,1);
+  }
+  .feature-visual:hover img{ transform:scale(1.05); }
+  .feature-visual .visual-tag{
+    position:absolute; left:18px; bottom:18px; z-index:2;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--text); background:var(--surface); border:1px solid var(--line);
+    padding:6px 13px; border-radius:999px;
+  }
   .feature-copy .eyebrow{ font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-soft); display:block; margin-bottom:14px; }
   .feature-copy h3{ font-family:var(--font-display); font-size:clamp(24px,3vw,34px); margin:0 0 14px; font-weight:600; }
   .feature-copy p{ color:var(--text-dim); font-size:15.5px; max-width:48ch; margin:0; }
@@ -555,7 +566,7 @@
     body.cursor-ready{ cursor:auto; }
     .liquid-trail, .glitch-overlay{ display:none !important; }
     .hero-portrait-img, .hero-portrait-ring{ animation:none !important; }
-    .gcard-media img{ transition:none !important; }
+    .gcard-media img, .feature-visual img{ transition:none !important; }
   }
 </style>
 </head>
@@ -707,7 +718,7 @@
     </div>
 
     <div class="feature-row reveal">
-      <div class="feature-visual teal"><div class="accent-orb"></div><span class="big-num">01</span></div>
+      <div class="feature-visual teal"><div class="accent-orb"></div><img src="sere.jpg" alt="Aron working across a multi-screen developer setup"><span class="visual-tag">01</span></div>
       <div class="feature-copy">
         <span class="eyebrow">Full-stack solo developer</span>
         <h3>One person, every part of the pipeline</h3>
@@ -817,7 +828,6 @@
     <div class="gallery-hint reveal">Drag to explore</div>
     <div class="drag-gallery reveal-stagger" id="appsGalleryLive">
       <div class="gcard">
-        <div class="gcard-media"><img src="sere.jpg" alt="Serenara app screenshot" loading="lazy"></div>
         <span class="badge live">Live</span>
         <h3>Serenara</h3>
         <p>Anxiety and mood app with breathing exercises, CBT affirmations, journaling, mood tracking, a Faith Mode with Scripture and prayer tools, and a pet evolution system.</p>
