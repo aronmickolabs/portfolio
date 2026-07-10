@@ -38,6 +38,11 @@
     --font-body:'Inter', sans-serif;
     --font-mono:'JetBrains Mono', monospace;
     --maxw:1220px;
+    --shape-fill-accent:rgba(78,140,255,0.10);
+    --shape-fill-gold:rgba(215,181,109,0.09);
+    --shape-glow-accent:rgba(78,140,255,0.55);
+    --shape-glow-gold:rgba(215,181,109,0.5);
+    --shape-border-w:1.5px;
   }
 
   html[data-theme="light"]{
@@ -65,6 +70,11 @@
     --orb-opacity:.14;
     --grain-opacity:.03;
     --selection-fg:#FFFFFF;
+    --shape-fill-accent:rgba(47,95,214,0.12);
+    --shape-fill-gold:rgba(156,122,43,0.12);
+    --shape-glow-accent:rgba(47,95,214,0.4);
+    --shape-glow-gold:rgba(156,122,43,0.38);
+    --shape-border-w:2px;
   }
 
   *{ box-sizing:border-box; }
@@ -178,11 +188,12 @@
   .cube3d{
     width:170px; height:170px; top:9%; right:7%;
     animation:cubeSpin 26s linear infinite;
-    opacity:.68;
+    opacity:.78;
+    filter:drop-shadow(0 0 14px var(--shape-glow-accent));
   }
   .cube3d .face{
     position:absolute; width:170px; height:170px;
-    border:1.5px solid var(--accent); background:rgba(78,140,255,0.07);
+    border:var(--shape-border-w) solid var(--accent); background:var(--shape-fill-accent);
   }
   .cube3d .front{ transform:translateZ(85px); }
   .cube3d .back{ transform:translateZ(-85px) rotateY(180deg); }
@@ -195,9 +206,10 @@
   .cube3d-sm{
     width:76px; height:76px; bottom:14%; left:9%;
     animation:cubeSpinRev 18s linear infinite;
-    opacity:.6;
+    opacity:.72;
+    filter:drop-shadow(0 0 10px var(--shape-glow-gold));
   }
-  .cube3d-sm .face{ position:absolute; width:76px; height:76px; border:1.5px solid var(--gold); background:rgba(215,181,109,0.06); }
+  .cube3d-sm .face{ position:absolute; width:76px; height:76px; border:var(--shape-border-w) solid var(--gold); background:var(--shape-fill-gold); }
   .cube3d-sm .front{ transform:translateZ(38px); }
   .cube3d-sm .back{ transform:translateZ(-38px) rotateY(180deg); }
   .cube3d-sm .right{ transform:rotateY(90deg) translateZ(38px); }
@@ -209,9 +221,10 @@
   .cube3d-mid{
     width:50px; height:50px; top:58%; right:24%;
     animation:cubeSpin 15s linear infinite;
-    opacity:.55;
+    opacity:.65;
+    filter:drop-shadow(0 0 8px var(--shape-glow-accent));
   }
-  .cube3d-mid .face{ position:absolute; width:50px; height:50px; border:1.5px solid var(--accent); background:rgba(78,140,255,0.06); }
+  .cube3d-mid .face{ position:absolute; width:50px; height:50px; border:var(--shape-border-w) solid var(--accent); background:var(--shape-fill-accent); }
   .cube3d-mid .front{ transform:translateZ(25px); }
   .cube3d-mid .back{ transform:translateZ(-25px) rotateY(180deg); }
   .cube3d-mid .right{ transform:rotateY(90deg) translateZ(25px); }
@@ -219,21 +232,35 @@
   .cube3d-mid .top{ transform:rotateX(90deg) translateZ(25px); }
   .cube3d-mid .bottom{ transform:rotateX(-90deg) translateZ(25px); }
 
-  .ring3d{ position:absolute; border-radius:50%; border:1.5px solid var(--accent); background:transparent; }
-  .ring3d.r1{ width:390px; height:390px; left:-95px; bottom:3%; opacity:.36; transform:rotateX(72deg) rotateZ(0deg); animation:ringSpin 34s linear infinite; }
-  .ring3d.r2{ width:250px; height:250px; right:-45px; top:28%; opacity:.32; border-color:var(--gold); transform:rotateX(68deg) rotateZ(0deg); animation:ringSpinRev 26s linear infinite; }
-  .ring3d.r3{ width:160px; height:160px; left:18%; top:12%; opacity:.3; transform:rotateX(75deg) rotateZ(0deg); animation:ringSpin 20s linear infinite; }
-  .ring3d.r4{ width:300px; height:300px; right:12%; bottom:-60px; opacity:.26; border-color:var(--gold); transform:rotateX(70deg) rotateZ(0deg); animation:ringSpinRev 40s linear infinite; }
+  .ring3d{ position:absolute; border-radius:50%; border:var(--shape-border-w) solid var(--accent); background:transparent; filter:drop-shadow(0 0 10px var(--shape-glow-accent)); }
+  .ring3d.r1{ width:390px; height:390px; left:-95px; bottom:3%; opacity:.46; transform:rotateX(72deg) rotateZ(0deg); animation:ringSpin 34s linear infinite; }
+  .ring3d.r2{ width:250px; height:250px; right:-45px; top:28%; opacity:.42; border-color:var(--gold); filter:drop-shadow(0 0 10px var(--shape-glow-gold)); transform:rotateX(68deg) rotateZ(0deg); animation:ringSpinRev 26s linear infinite; }
+  .ring3d.r3{ width:160px; height:160px; left:18%; top:12%; opacity:.4; transform:rotateX(75deg) rotateZ(0deg); animation:ringSpin 20s linear infinite; }
+  .ring3d.r4{ width:300px; height:300px; right:12%; bottom:-60px; opacity:.36; border-color:var(--gold); filter:drop-shadow(0 0 10px var(--shape-glow-gold)); transform:rotateX(70deg) rotateZ(0deg); animation:ringSpinRev 40s linear infinite; }
   @keyframes ringSpin{ from{ transform:rotateX(72deg) rotateZ(0deg); } to{ transform:rotateX(72deg) rotateZ(360deg); } }
   @keyframes ringSpinRev{ from{ transform:rotateX(68deg) rotateZ(360deg); } to{ transform:rotateX(68deg) rotateZ(0deg); } }
 
   .dot3d{
     position:absolute; width:5px; height:5px; border-radius:50%;
-    background:var(--accent-soft); opacity:.55; animation:dotFloat 9s ease-in-out infinite;
+    background:var(--accent-soft); opacity:.7; box-shadow:0 0 8px 1px var(--shape-glow-accent);
+    animation:dotFloat 9s ease-in-out infinite;
   }
   @keyframes dotFloat{ 0%,100%{ transform:translateZ(var(--tz,0px)) translateY(0); } 50%{ transform:translateZ(var(--tz,0px)) translateY(-18px); } }
 
-  @media (max-width:680px){ .scene3d{ display:none; } }
+  /* Mobile: keep the 3D scene visible instead of hiding it, just tuned smaller and punchier
+     so it still reads clearly on small screens and in light mode. */
+  @media (max-width:680px){
+    .scene3d{
+      opacity:1;
+      transform:scale(.66);
+      transform-origin:64% 26%;
+    }
+    .cube3d, .cube3d-sm, .cube3d-mid{ opacity:.85; }
+    .ring3d{ opacity:.5; }
+    .ring3d.r2, .ring3d.r4{ opacity:.44; }
+    .dot3d{ width:6px; height:6px; opacity:.85; }
+    html[data-theme="light"] .scene3d{ filter:saturate(1.35) contrast(1.05); }
+  }
 
   @media (prefers-reduced-motion: reduce){
     .cube3d, .cube3d-sm, .ring3d, .dot3d{ animation:none !important; }
@@ -311,20 +338,14 @@
   /* ============ MAGNETIC ============ */
   .magnetic{ transition:transform .25s cubic-bezier(.2,.8,.2,1), background-color .2s ease, border-color .2s ease, color .2s ease; }
 
-  /* ============ SPLIT TEXT HEADINGS: 3D SPIRAL ASSEMBLY ============ */
+  /* ============ SPLIT TEXT HEADINGS: scroll-synced assemble / scatter ============ */
   .section-head h2, .scene-contact h2{ perspective:900px; }
   .split-word-wrap{ display:inline-block; white-space:nowrap; }
   .split-letter{
     display:inline-block;
     opacity:0;
     transform: translate3d(var(--sx,0px), var(--sy,0px), var(--sz,0px)) rotateZ(var(--srot,0deg)) rotateY(var(--sroty,0deg));
-    transition: transform 1.1s cubic-bezier(.16,1,.3,1), opacity .8s ease;
-    transition-delay: var(--delay, 0ms);
     will-change: transform, opacity;
-  }
-  .split-ready .split-letter{
-    opacity:1;
-    transform: translate3d(0,0,0) rotateZ(0deg) rotateY(0deg);
   }
 
   /* ============ MARQUEE ============ */
@@ -1179,14 +1200,19 @@
     }
     var scrollDrift = 0, scrollRotate = 0, scrollScale = 0, scrollHue = 0;
     var smoothDrift = 0, smoothRotate = 0, smoothScale = 1, smoothHue = 0;
+    var lastScrollTs = performance.now(), lastScrollY2 = window.scrollY, scrollVelocity = 0;
     document.addEventListener('scroll', function(){
       var y = window.scrollY;
+      var now = performance.now();
+      var dt = Math.max(now - lastScrollTs, 1);
+      scrollVelocity = (y - lastScrollY2) / dt; // px per ms, signed
+      lastScrollY2 = y; lastScrollTs = now;
       var docHeight = document.documentElement.scrollHeight - window.innerHeight;
       var pct = docHeight > 0 ? Math.min(Math.max(y / docHeight, 0), 1) : 0;
-      scrollDrift = y * 0.09;
-      scrollRotate = y * 0.045;
-      scrollScale = Math.sin(y * 0.0025) * 0.07;
-      scrollHue = Math.sin(pct * Math.PI * 2.6) * 45;
+      scrollDrift = y * 0.15;
+      scrollRotate = y * 0.075;
+      scrollScale = Math.sin(y * 0.0025) * 0.13 + Math.min(Math.abs(scrollVelocity) * 0.6, 0.18);
+      scrollHue = Math.sin(pct * Math.PI * 2.6) * 75;
     }, { passive: true });
     (function scene3dLoop(){
       tiltX += (targetTiltX - tiltX) * 0.05;
@@ -1218,44 +1244,128 @@
   document.addEventListener('scroll', function(){ requestAnimationFrame(updateProgress); }, { passive: true });
   updateProgress();
 
-  // ---- Split-text 3D spiral assembly headings ----
-  function splitHeading(el){
+  // ---- Split-text headings: scroll-synced assemble / scatter, a different
+  // scatter "style" per heading so the page doesn't repeat the same trick going down ----
+  // Each style is a function(letterIndex, totalLetters) -> {sx,sy,sz,srot,sroty} in the
+  // letter's own scattered (fully disassembled) state. At scroll progress 1 the letter
+  // sits at (0,0,0,0,0); at progress 0 it sits fully at its scattered offset.
+  var scatterStyles = [
+    // 0: golden-angle spiral burst (outward + depth)
+    function(i){
+      var goldenAngle = 137.508;
+      var angleDeg = i * goldenAngle;
+      var rad = angleDeg * Math.PI / 180;
+      var radius = Math.min(14 + i * 4.2, 170);
+      return {
+        sx: radius * Math.cos(rad), sy: radius * Math.sin(rad),
+        sz: -80 + (i % 6) * 28, srot: ((angleDeg % 360) - 180) * 0.6,
+        sroty: ((angleDeg * 1.7) % 180) - 90
+      };
+    },
+    // 1: radial explosion, alternating up/down, letters fly outward from center
+    function(i, n){
+      var mid = (n - 1) / 2;
+      var dir = i - mid;
+      return {
+        sx: dir * 26, sy: (i % 2 === 0 ? -1 : 1) * (40 + Math.abs(dir) * 6),
+        sz: -60 - Math.abs(dir) * 10, srot: dir * 14,
+        sroty: dir * 22
+      };
+    },
+    // 2: vertical cascade wave, letters drop from alternating heights
+    function(i){
+      var wave = Math.sin(i * 0.9);
+      return {
+        sx: (i % 2 === 0 ? -14 : 14), sy: -130 + wave * 40,
+        sz: -50, srot: wave * 30,
+        sroty: 0
+      };
+    },
+    // 3: horizontal slide-apart, even letters left, odd letters right
+    function(i){
+      var side = i % 2 === 0 ? -1 : 1;
+      return {
+        sx: side * (90 + i * 3), sy: (i % 3 - 1) * 18,
+        sz: -40, srot: side * 8,
+        sroty: side * 70
+      };
+    },
+    // 4: 3D flip-in from behind, letters rotate in from depth
+    function(i){
+      return {
+        sx: (i % 2 === 0 ? -10 : 10), sy: (i % 4) * 10 - 15,
+        sz: -220, srot: 0,
+        sroty: i % 2 === 0 ? -130 : 130
+      };
+    }
+  ];
+
+  function splitHeading(el, styleIndex){
     var words = el.textContent.trim().split(/\s+/);
     var i = 0;
-    var goldenAngle = 137.508;
+    var totalLetters = el.textContent.replace(/\s+/g, '').length;
+    var scatterFn = scatterStyles[styleIndex % scatterStyles.length];
     var html = words.map(function(word){
       var letters = word.split('').map(function(ch){
-        var angleDeg = i * goldenAngle;
-        var rad = angleDeg * Math.PI / 180;
-        var radius = Math.min(10 + i * 3.6, 150);
-        var sx = (radius * Math.cos(rad)).toFixed(1);
-        var sy = (radius * Math.sin(rad)).toFixed(1);
-        var sz = (-70 + (i % 6) * 26).toFixed(0);
-        var srot = (((angleDeg % 360) - 180) * 0.6).toFixed(1);
-        var sroty = (((angleDeg * 1.7) % 180) - 90).toFixed(1);
-        var delay = Math.min(i * 24, 520);
-        var style = '--sx:' + sx + 'px;--sy:' + sy + 'px;--sz:' + sz + 'px;--srot:' + srot + 'deg;--sroty:' + sroty + 'deg;--delay:' + delay + 'ms;';
+        var s = scatterFn(i, totalLetters);
+        var style = '--sx:' + s.sx.toFixed(1) + 'px;--sy:' + s.sy.toFixed(1) + 'px;--sz:' + s.sz.toFixed(0) + 'px;--srot:' + s.srot.toFixed(1) + 'deg;--sroty:' + s.sroty.toFixed(1) + 'deg;';
         i++;
         return '<span class="split-letter" style="' + style + '">' + ch + '</span>';
       }).join('');
       return '<span class="split-word-wrap">' + letters + '</span>';
     }).join(' ');
     el.innerHTML = html;
+    return Array.prototype.slice.call(el.querySelectorAll('.split-letter'));
   }
-  var headingTargets = document.querySelectorAll('.section-head h2, .scene-contact h2');
-  headingTargets.forEach(function(h){ splitHeading(h); });
-  if('IntersectionObserver' in window){
-    var headingIO = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){
-          entry.target.classList.add('split-ready');
-          headingIO.unobserve(entry.target);
-        }
+
+  var headingTargets = Array.prototype.slice.call(document.querySelectorAll('.section-head h2, .scene-contact h2'));
+  var headingRigs = headingTargets.map(function(h, idx){
+    var letters = splitHeading(h, idx);
+    return { el: h, letters: letters, progress: 0 };
+  });
+
+  if(reduceMotionMQ.matches){
+    // Reduced motion: just show the assembled text, no scroll-driven scatter.
+    headingRigs.forEach(function(rig){
+      rig.letters.forEach(function(letter){
+        letter.style.opacity = '1';
+        letter.style.transform = 'translate3d(0,0,0) rotateZ(0deg) rotateY(0deg)';
       });
-    }, { threshold: 0.3 });
-    headingTargets.forEach(function(h){ headingIO.observe(h); });
+    });
   } else {
-    headingTargets.forEach(function(h){ h.classList.add('split-ready'); });
+    // Continuous scroll-synced loop: as each heading enters, crosses, and leaves the
+    // viewport center, its letters assemble into words then scatter apart again.
+    (function headingScrollLoop(){
+      var vh = window.innerHeight;
+      for(var r = 0; r < headingRigs.length; r++){
+        var rig = headingRigs[r];
+        var rect = rig.el.getBoundingClientRect();
+        // Skip DOM writes for headings far outside the viewport, for performance,
+        // but still let their eased progress relax toward 0 (scattered) off-screen.
+        var farAway = rect.bottom < -vh || rect.top > vh * 2;
+        var raw;
+        if(farAway){
+          raw = 0;
+        } else {
+          var center = rect.top + rect.height / 2;
+          var dist = Math.abs(center - vh / 2);
+          raw = 1 - Math.min(dist / (vh * 0.62), 1); // 1 = centered/assembled, 0 = scattered
+          raw = raw * raw * (3 - 2 * raw); // smoothstep
+        }
+        rig.progress += (raw - rig.progress) * 0.18;
+        if(farAway && rig.progress < 0.01) continue;
+        var p = rig.progress;
+        var inv = 1 - p;
+        for(var l = 0; l < rig.letters.length; l++){
+          var letter = rig.letters[l];
+          letter.style.opacity = String(Math.max(0.04, p));
+          letter.style.transform =
+            'translate3d(calc(var(--sx) * ' + inv + '), calc(var(--sy) * ' + inv + '), calc(var(--sz) * ' + inv + ')) ' +
+            'rotateZ(calc(var(--srot) * ' + inv + ')) rotateY(calc(var(--sroty) * ' + inv + '))';
+        }
+      }
+      requestAnimationFrame(headingScrollLoop);
+    })();
   }
 
   // ---- Animated stat counters ----
