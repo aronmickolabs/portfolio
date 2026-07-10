@@ -344,7 +344,7 @@
   .split-letter{
     display:inline-block;
     opacity:0;
-    transform: translate3d(var(--sx,0px), var(--sy,0px), var(--sz,0px)) rotateZ(var(--srot,0deg)) rotateY(var(--sroty,0deg));
+    transform: translate3d(var(--sx,0px), var(--sy,0px), var(--sz,0px)) rotateZ(var(--srot,0deg)) rotateY(var(--sroty,0deg)) scale(var(--sscale,1));
     will-change: transform, opacity;
   }
 
@@ -1187,6 +1187,10 @@
 
   var reduceMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  // Shared zoom pulse driven by the background 3D scene's scroll-linked scale,
+  // read by the heading letter animation so both layers breathe in sync.
+  var globalZoomPulse = 1;
+
   // ---- 3D background scene parallax ----
   var scene3d = document.getElementById('scene3d');
   var scene3dInner = document.getElementById('scene3dInner');
@@ -1228,6 +1232,7 @@
         'rotateY(' + (tiltY + smoothRotate) + 'deg) ' +
         'rotateZ(' + (smoothRotate * 0.25) + 'deg) ' +
         'scale(' + smoothScale + ')';
+      globalZoomPulse = smoothScale;
       requestAnimationFrame(scene3dLoop);
     })();
   }
@@ -1245,12 +1250,15 @@
   updateProgress();
 
   // ---- Split-text headings: scroll-synced assemble / scatter, a different
-  // scatter "style" per heading so the page doesn't repeat the same trick going down ----
-  // Each style is a function(letterIndex, totalLetters) -> {sx,sy,sz,srot,sroty} in the
+  // scatter "style" per heading so the page doesn't repeat the same trick going down.
+  // Each style also carries an "sscale" value: the zoomed-in/zoomed-out size the
+  // letter starts from when fully scattered, so letters zoom in or out as they
+  // fly apart or reassemble, echoing the same zoom pulse as the 3D background. ----
+  // Each style is a function(letterIndex, totalLetters) -> {sx,sy,sz,srot,sroty,sscale} in the
   // letter's own scattered (fully disassembled) state. At scroll progress 1 the letter
-  // sits at (0,0,0,0,0); at progress 0 it sits fully at its scattered offset.
+  // sits at (0,0,0,0,0,scale 1); at progress 0 it sits fully at its scattered offset/scale.
   var scatterStyles = [
-    // 0: golden-angle spiral burst (outward + depth)
+    // 0: golden-angle spiral burst (outward + depth), scale alternates zoomed in/out per letter
     function(i){
       var goldenAngle = 137.508;
       var angleDeg = i * goldenAngle;
@@ -1259,43 +1267,52 @@
       return {
         sx: radius * Math.cos(rad), sy: radius * Math.sin(rad),
         sz: -80 + (i % 6) * 28, srot: ((angleDeg % 360) - 180) * 0.6,
-        sroty: ((angleDeg * 1.7) % 180) - 90
+        sroty: ((angleDeg * 1.7) % 180) - 90,
+        sscale: 0.4 + (i % 5) * 0.5
       };
     },
-    // 1: radial explosion, alternating up/down, letters fly outward from center
+    // 1: radial explosion, alternating up/down, letters fly outward from center;
+    // letters further from the center zoom in bigger, near-center letters shrink away
     function(i, n){
       var mid = (n - 1) / 2;
       var dir = i - mid;
       return {
         sx: dir * 26, sy: (i % 2 === 0 ? -1 : 1) * (40 + Math.abs(dir) * 6),
         sz: -60 - Math.abs(dir) * 10, srot: dir * 14,
-        sroty: dir * 22
+        sroty: dir * 22,
+        sscale: i % 2 === 0 ? (1.8 + Math.abs(dir) * 0.08) : 0.35
       };
     },
-    // 2: vertical cascade wave, letters drop from alternating heights
+    // 2: vertical cascade wave, letters drop from alternating heights;
+    // scale rides the same wave so letters zoom in on the crest and out on the trough
     function(i){
       var wave = Math.sin(i * 0.9);
       return {
         sx: (i % 2 === 0 ? -14 : 14), sy: -130 + wave * 40,
         sz: -50, srot: wave * 30,
-        sroty: 0
+        sroty: 0,
+        sscale: wave >= 0 ? 2.0 : 0.35
       };
     },
-    // 3: horizontal slide-apart, even letters left, odd letters right
+    // 3: horizontal slide-apart, even letters left, odd letters right;
+    // one side zooms in large, the other zooms out small
     function(i){
       var side = i % 2 === 0 ? -1 : 1;
       return {
         sx: side * (90 + i * 3), sy: (i % 3 - 1) * 18,
         sz: -40, srot: side * 8,
-        sroty: side * 70
+        sroty: side * 70,
+        sscale: side > 0 ? 2.2 : 0.3
       };
     },
-    // 4: 3D flip-in from behind, letters rotate in from depth
+    // 4: 3D flip-in from behind, letters rotate in from depth;
+    // alternating scale gives a push-pull zoom feel as they flip
     function(i){
       return {
         sx: (i % 2 === 0 ? -10 : 10), sy: (i % 4) * 10 - 15,
         sz: -220, srot: 0,
-        sroty: i % 2 === 0 ? -130 : 130
+        sroty: i % 2 === 0 ? -130 : 130,
+        sscale: i % 2 === 0 ? 0.25 : 2.6
       };
     }
   ];
@@ -1308,7 +1325,8 @@
     var html = words.map(function(word){
       var letters = word.split('').map(function(ch){
         var s = scatterFn(i, totalLetters);
-        var style = '--sx:' + s.sx.toFixed(1) + 'px;--sy:' + s.sy.toFixed(1) + 'px;--sz:' + s.sz.toFixed(0) + 'px;--srot:' + s.srot.toFixed(1) + 'deg;--sroty:' + s.sroty.toFixed(1) + 'deg;';
+        var scaleVal = (typeof s.sscale === 'number' && !isNaN(s.sscale)) ? s.sscale : 1;
+        var style = '--sx:' + s.sx.toFixed(1) + 'px;--sy:' + s.sy.toFixed(1) + 'px;--sz:' + s.sz.toFixed(0) + 'px;--srot:' + s.srot.toFixed(1) + 'deg;--sroty:' + s.sroty.toFixed(1) + 'deg;--sscale:' + scaleVal.toFixed(2) + ';';
         i++;
         return '<span class="split-letter" style="' + style + '">' + ch + '</span>';
       }).join('');
@@ -1325,16 +1343,17 @@
   });
 
   if(reduceMotionMQ.matches){
-    // Reduced motion: just show the assembled text, no scroll-driven scatter.
+    // Reduced motion: just show the assembled text, no scroll-driven scatter or zoom.
     headingRigs.forEach(function(rig){
       rig.letters.forEach(function(letter){
         letter.style.opacity = '1';
-        letter.style.transform = 'translate3d(0,0,0) rotateZ(0deg) rotateY(0deg)';
+        letter.style.transform = 'translate3d(0,0,0) rotateZ(0deg) rotateY(0deg) scale(1)';
       });
     });
   } else {
     // Continuous scroll-synced loop: as each heading enters, crosses, and leaves the
-    // viewport center, its letters assemble into words then scatter apart again.
+    // viewport center, its letters assemble into words then scatter apart again,
+    // zooming in and out along the way in sync with the background's zoom pulse.
     (function headingScrollLoop(){
       var vh = window.innerHeight;
       for(var r = 0; r < headingRigs.length; r++){
@@ -1356,12 +1375,17 @@
         if(farAway && rig.progress < 0.01) continue;
         var p = rig.progress;
         var inv = 1 - p;
+        // Blend the letter's own scatter-scale interpolation with the shared
+        // background zoom pulse, so the further a letter is from assembled,
+        // the more it also rides the same in/out breathing as the 3D scene.
+        var zoomMix = (inv * (globalZoomPulse || 1)).toFixed(4);
         for(var l = 0; l < rig.letters.length; l++){
           var letter = rig.letters[l];
           letter.style.opacity = String(Math.max(0.04, p));
           letter.style.transform =
             'translate3d(calc(var(--sx) * ' + inv + '), calc(var(--sy) * ' + inv + '), calc(var(--sz) * ' + inv + ')) ' +
-            'rotateZ(calc(var(--srot) * ' + inv + ')) rotateY(calc(var(--sroty) * ' + inv + '))';
+            'rotateZ(calc(var(--srot) * ' + inv + ')) rotateY(calc(var(--sroty) * ' + inv + ')) ' +
+            'scale(calc(1 + (var(--sscale) - 1) * ' + zoomMix + '))';
         }
       }
       requestAnimationFrame(headingScrollLoop);
