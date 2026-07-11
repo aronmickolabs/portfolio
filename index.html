@@ -556,6 +556,20 @@
     .scroll-reveal-image img{ transform:none !important; }
   }
 
+  /* ============ IMAGE FALLBACK PLACEHOLDER ============ */
+  /* If a referenced image file (book.jpg / novel.jpg / cam.jpg / etc) has not been
+     uploaded yet, show a clean placeholder instead of a broken image icon, so the
+     layout always looks intentional while the real photo is still missing. */
+  .feature-visual, .scroll-reveal-image{ position:relative; }
+  .img-fallback{
+    position:absolute; inset:0; z-index:1; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:10px; text-align:center; padding:20px;
+    color:var(--text-mute); background:linear-gradient(155deg, var(--surface), var(--bg-alt));
+  }
+  .img-fallback svg{ width:34px; height:34px; opacity:.55; }
+  .img-fallback strong{ font-family:var(--font-mono); font-size:12px; letter-spacing:.04em; color:var(--text-dim); }
+  .img-fallback span{ font-family:var(--font-mono); font-size:11px; opacity:.75; }
+
   /* ============ CONTACT SCENE ============ */
   .scene-contact{ min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:100px 24px; position:relative; z-index:2; }
   .scene-contact h2{ font-family:var(--font-display); font-weight:700; font-style:italic; font-size:clamp(38px,7vw,84px); margin:0 0 24px; }
@@ -766,7 +780,7 @@
     </div>
 
     <div class="feature-row reveal">
-      <div class="feature-visual teal"><div class="accent-orb"></div><img src="book.jpg" alt="Aron's published novels"><span class="visual-tag">03</span></div>
+      <div class="feature-visual teal"><div class="accent-orb"></div><img src="book.jpg" alt="Aron's published novels" data-fallback-label="book.jpg"><span class="visual-tag">03</span></div>
       <div class="feature-copy">
         <span class="eyebrow">A writer first</span>
         <h3>Six published novels, one adapted into a game</h3>
@@ -784,7 +798,7 @@
     </div>
 
     <div class="scroll-reveal-image" id="workRevealImage">
-      <img src="novel.jpg" alt="Aron's work across IT, development, and creative projects">
+      <img src="novel.jpg" alt="Aron's work across IT, development, and creative projects" data-fallback-label="novel.jpg">
       <span class="visual-tag">On the job</span>
     </div>
 
@@ -860,7 +874,7 @@
     </div>
 
     <div class="scroll-reveal-image" id="appsRevealImage">
-      <img src="cam.jpg" alt="Aron Micko Labs app development work">
+      <img src="cam.jpg" alt="Aron Micko Labs app development work" data-fallback-label="cam.jpg">
       <span class="visual-tag">Aron Micko Labs</span>
     </div>
 
@@ -1255,6 +1269,26 @@
   });
   document.querySelectorAll('.menu-link').forEach(function(link){
     link.addEventListener('click', function(){ closeMenu(); });
+  });
+
+  // ---- Graceful fallback for images that have not been uploaded yet ----
+  // Any <img> with data-fallback-label gets a clean placeholder instead of a
+  // broken image icon if the file 404s, so the layout never looks broken.
+  document.querySelectorAll('img[data-fallback-label]').forEach(function(img){
+    img.addEventListener('error', function(){
+      if(img.dataset.fallbackHandled) return;
+      img.dataset.fallbackHandled = '1';
+      img.style.display = 'none';
+      var box = document.createElement('div');
+      box.className = 'img-fallback';
+      box.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><path d="M21 15l-5-5L5 21"></path></svg>' +
+        '<strong>Image not uploaded yet</strong><span>' + img.getAttribute('data-fallback-label') + '</span>';
+      img.parentElement.insertBefore(box, img);
+    }, { once: true });
+    // If the image already failed before this listener attached (cached 404), trigger manually.
+    if(img.complete && img.naturalWidth === 0){
+      img.dispatchEvent(new Event('error'));
+    }
   });
 
   // ---- Reveal on scroll (single + staggered groups + scroll-reveal images) ----
