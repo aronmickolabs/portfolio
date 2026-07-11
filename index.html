@@ -526,6 +526,36 @@
   .assess-item a{ font-family:var(--font-mono); font-size:11.5px; color:var(--accent-soft); margin-top:auto; }
   .assess-item a:hover{ color:var(--gold-soft); }
 
+  /* ============ SCROLL REVEAL IMAGE BANNER ============ */
+  .scroll-reveal-image{
+    position:relative; width:100%; border-radius:20px; overflow:hidden;
+    margin:0 0 52px; aspect-ratio:16/8; border:1px solid var(--line);
+    clip-path:inset(0 0 100% 0 round 20px); opacity:0;
+    transition:clip-path 1.15s cubic-bezier(.2,.8,.2,1), opacity .6s ease;
+    background:linear-gradient(155deg, var(--surface), var(--bg-alt));
+  }
+  .scroll-reveal-image.in-view{ clip-path:inset(0 0 0% 0 round 20px); opacity:1; }
+  .scroll-reveal-image img{
+    width:100%; height:100%; object-fit:cover; display:block;
+    transform:scale(1.18) translateY(var(--parallax-y, 0px));
+    transition:transform .1s linear; will-change:transform;
+  }
+  .scroll-reveal-image::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg, transparent 55%, rgba(0,0,0,.32));
+  }
+  .scroll-reveal-image .visual-tag{
+    position:absolute; left:18px; bottom:18px; z-index:2;
+    font-family:var(--font-mono); font-size:12px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--text); background:var(--surface); border:1px solid var(--line);
+    padding:6px 13px; border-radius:999px;
+  }
+  @media (max-width:680px){ .scroll-reveal-image{ aspect-ratio:4/3; } }
+  @media (prefers-reduced-motion: reduce){
+    .scroll-reveal-image{ transition:opacity .5s ease; clip-path:inset(0 round 20px) !important; }
+    .scroll-reveal-image img{ transform:none !important; }
+  }
+
   /* ============ CONTACT SCENE ============ */
   .scene-contact{ min-height:100svh; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:100px 24px; position:relative; z-index:2; }
   .scene-contact h2{ font-family:var(--font-display); font-weight:700; font-style:italic; font-size:clamp(38px,7vw,84px); margin:0 0 24px; }
@@ -736,7 +766,7 @@
     </div>
 
     <div class="feature-row reveal">
-      <div class="feature-visual teal"><div class="accent-orb"></div><span class="big-num">03</span></div>
+      <div class="feature-visual teal"><div class="accent-orb"></div><img src="book.jpg" alt="Aron's published novels"><span class="visual-tag">03</span></div>
       <div class="feature-copy">
         <span class="eyebrow">A writer first</span>
         <h3>Six published novels, one adapted into a game</h3>
@@ -751,6 +781,11 @@
       <span class="eyebrow">Experience</span>
       <h2>Work Experience</h2>
       <p>Full-time roles, contract work, and on-the-job training, most recent first.</p>
+    </div>
+
+    <div class="scroll-reveal-image" id="workRevealImage">
+      <img src="novel.jpg" alt="Aron's work across IT, development, and creative projects">
+      <span class="visual-tag">On the job</span>
     </div>
 
     <h4 class="group-title reveal">Professional Experience</h4>
@@ -822,6 +857,11 @@
       <span class="eyebrow">Mobile Development</span>
       <h2>Apps</h2>
       <p>Android apps I have designed, built, and published, under the Aron Micko Labs brand.</p>
+    </div>
+
+    <div class="scroll-reveal-image" id="appsRevealImage">
+      <img src="cam.jpg" alt="Aron Micko Labs app development work">
+      <span class="visual-tag">Aron Micko Labs</span>
     </div>
 
     <h4 class="group-title reveal">Live on Google Play</h4>
@@ -1217,8 +1257,8 @@
     link.addEventListener('click', function(){ closeMenu(); });
   });
 
-  // ---- Reveal on scroll (single + staggered groups) ----
-  var revealEls = document.querySelectorAll('.reveal, .reveal-stagger');
+  // ---- Reveal on scroll (single + staggered groups + scroll-reveal images) ----
+  var revealEls = document.querySelectorAll('.reveal, .reveal-stagger, .scroll-reveal-image');
   if('IntersectionObserver' in window){
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
@@ -1241,6 +1281,26 @@
   });
 
   var reduceMotionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  // ---- Scroll-reveal image parallax (Ken Burns style, syncs with scroll like the
+  // background 3D scene) : each banner image drifts slightly as its section scrolls
+  // through the viewport, so it reads as a subtle slideshow-style motion, not a
+  // static photo. ----
+  var parallaxImages = Array.prototype.slice.call(document.querySelectorAll('.scroll-reveal-image img'));
+  if(parallaxImages.length && !reduceMotionMQ.matches){
+    (function parallaxLoop(){
+      var vh = window.innerHeight;
+      for(var i = 0; i < parallaxImages.length; i++){
+        var img = parallaxImages[i];
+        var rect = img.parentElement.getBoundingClientRect();
+        var center = rect.top + rect.height / 2;
+        var offset = (center - vh / 2) / vh; // -0.5 .. 0.5 roughly
+        var travel = offset * 46; // px of drift
+        img.style.setProperty('--parallax-y', travel.toFixed(1) + 'px');
+      }
+      requestAnimationFrame(parallaxLoop);
+    })();
+  }
 
   // Shared zoom pulse driven by the background 3D scene's scroll-linked scale,
   // read by the heading letter animation so both layers breathe in sync.
